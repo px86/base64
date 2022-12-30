@@ -1,0 +1,9 @@
+#+TITLE: Base64 Encoder/Decoder
+#+AUTHOR: Pushkar Raj
+#+EMAIL: px86@protonmail.com
+#+DATE: [2022-12-30 Fri]
+
+
+A simple implementation of base64 encoder/decoder.
+
+Read More: https://en.wikipedia.org/wiki/Base64
