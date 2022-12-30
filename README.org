@@ -7,3 +7,15 @@
 A simple implementation of base64 encoder/decoder.
 
 Read More: https://en.wikipedia.org/wiki/Base64
+
+
+* Usage
+
+#+begin_src text
+Usage: Base64 [OPTIONS]
+
+Options:
+  --help            Print this help message
+  --input, -i VAL   input file (default is STDIN)
+  --decode, -d      decode, instead of encoding
+#+end_src
