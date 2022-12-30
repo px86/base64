@@ -1,3 +1,4 @@
+#include "argparser.hpp"
 #include "base64.hpp"
 #include <cstdint>
 #include <cstdio>
@@ -5,32 +6,84 @@
 #include <ios>
 #include <iostream>
 
-auto main() -> int
+auto main(int argc, char** argv) -> int
 {
+    const char* input_filepath = nullptr;
+    // TODO: add support for output to a file
+    // const char* output_filepath = nullptr;
+    bool decode = false;
+
+    auto argparser = pr::ArgParser("Base64");
+
+    argparser.add_option(input_filepath, "input file (default is STDIN)", "input", 'i');
+    // TODO
+    // argparser.add_option(output_filepath, "output file (defaults to stdout)", "output", 'o');
+    argparser.add_option(decode, "decode, instead of encoding", "decode", 'd');
+    argparser.parse(argc, argv);
+
+    // decode data from file
+    if (decode && input_filepath != nullptr) {
+        auto optional_val = pr::decode_file(input_filepath);
+        if (!optional_val.has_value()) {
+            std::cerr << "Error: Some error occured while reading/decoding the file '" << input_filepath << "'\n";
+            return EXIT_FAILURE;
+        }
+        auto val = optional_val.value();
+        for (auto i : val) {
+            std::cout << (char)i;
+        }
+        std::cout << std::endl;
+
+        return EXIT_SUCCESS;
+    }
+
+    // encode data from file
+    if (!decode && input_filepath != nullptr) {
+        auto optional_val = pr::encode_file(input_filepath);
+        if (!optional_val.has_value()) {
+            std::cerr << "Error: Some error occured while reading/encoding the file '" << input_filepath << "'\n";
+            return EXIT_FAILURE;
+        }
+        auto val = optional_val.value();
+        std::cout << val << std::endl;
+
+        return EXIT_SUCCESS;
+    }
+
+    // read data from stdin
+
+    // reopen stdin for reading binary data.
+    // https://stackoverflow.com/a/1599093/19271034
     std::freopen(NULL, "rb", stdin);
-    auto encoder = pr::Base64Encoder {};
-    auto decoder = pr::Base64Decoder {};
+
+    auto buff = std::vector<uint8_t> {};
 
     while (std::cin) {
         auto c = std::cin.get();
-        if (c != EOF) {
-            encoder.feed_data((uint8_t)c);
-        } else {
+        if (c == EOF) {
             break;
         }
+        buff.push_back((uint8_t)c);
     }
-    auto encoded_data = encoder.encode();
 
-    decoder.feed_data((uint8_t*)encoded_data.data(), encoded_data.size());
-    auto decoded_data = decoder.decode();
+    // decode from stdin
+    if (decode) {
+        auto decoder = pr::Base64Decoder {};
+        decoder.feed_data(std::move(buff));
+        auto val = decoder.decode();
+        for (auto i : val) {
+            std::cout << (char)i;
+        }
+        std::cout << std::endl;
 
-    auto decoded_str = std::string {};
-    for (auto i : decoded_data) {
-
-        std::cout << (char)i;
+        return EXIT_SUCCESS;
     }
-    std::cout << '\n';
-    std::cout << "Encoded: " << encoded_data << '\n';
+
+    // encode from stdin
+    auto encoder = pr::Base64Encoder {};
+    encoder.feed_data(std::move(buff));
+    auto val = encoder.encode();
+    std::cout << val << std::endl;
 
     return EXIT_SUCCESS;
 }

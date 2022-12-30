@@ -1,8 +1,10 @@
 #pragma once
 
-#include <bits/c++config.h>
 #include <cassert>
 #include <cstdint>
+#include <fstream>
+#include <ios>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -52,6 +54,7 @@ protected:
 public:
     virtual void feed_data(uint8_t data);
     virtual void feed_data(const uint8_t* data, size_t size);
+    virtual void feed_data(std::vector<uint8_t>&& data);
     virtual ~Base64() = default;
 };
 
@@ -71,4 +74,8 @@ public:
     [[nodiscard]] auto decode() -> std::vector<uint8_t>;
 };
 
-}
+auto read_entire_file(const char* filepath) -> std::optional<std::vector<uint8_t>>;
+auto encode_file(const char* filepath) -> std::optional<std::string>;
+auto decode_file(const char* filepath) -> std::optional<std::vector<uint8_t>>;
+
+} // namespace pr

@@ -15,6 +15,11 @@ void pr::Base64::feed_data(std::uint8_t const* data, std::size_t size)
     std::memcpy(&m_data[old_size], data, size);
 }
 
+void pr::Base64::feed_data(std::vector<uint8_t>&& data)
+{
+    m_data = std::move(data);
+}
+
 auto pr::Base64Encoder::encode() -> std::string
 {
     auto m_data = data();
@@ -114,4 +119,51 @@ auto pr::Base64Decoder::decode() -> std::vector<uint8_t>
     }
 
     return decoded_data;
+}
+
+auto pr::read_entire_file(const char* filepath) -> std::optional<std::vector<uint8_t>>
+{
+    auto inf = std::ifstream { filepath, std::ios_base::binary };
+    if (!inf) {
+        return {}; // error occured!
+    }
+    // determine file size
+    auto fsize = inf.tellg();
+    inf.seekg(0, std::ios_base::end);
+    fsize = inf.tellg() - fsize;
+    inf.seekg(0, std::fstream::beg);
+
+    auto buff = std::vector<std::uint8_t> {};
+    buff.resize((size_t)fsize); // reserve sufficient space
+    inf.read((char*)buff.data(), fsize);
+
+    assert(inf.gcount() == fsize); // ensure all data is read
+
+    return buff;
+}
+
+auto pr::encode_file(const char* filepath) -> std::optional<std::string>
+{
+    auto opt = pr::read_entire_file(filepath);
+    if (!opt.has_value()) {
+        return {}; // file can not be read
+    }
+    auto buff = opt.value();
+    auto encoder = pr::Base64Encoder {};
+    encoder.feed_data(std::move(buff));
+
+    return encoder.encode();
+}
+
+auto pr::decode_file(const char* filepath) -> std::optional<std::vector<uint8_t>>
+{
+    auto opt = pr::read_entire_file(filepath);
+    if (!opt.has_value()) {
+        return {}; // file can not be read
+    }
+    auto buff = opt.value();
+    auto decoder = pr::Base64Decoder {};
+    decoder.feed_data(std::move(buff));
+
+    return decoder.decode();
 }
