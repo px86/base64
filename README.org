@@ -8,14 +8,27 @@ A simple implementation of base64 encoder/decoder.
 
 Read More: https://en.wikipedia.org/wiki/Base64
 
+* How to build
+
+Assuming that you have the necessary tools (=g++=, =cmake=) installed.
+
+#+begin_src shell
+  git clone https://github.com/px86/base64
+  cd base64
+  mkdir build
+  cd build
+  cmake ..
+  cmake --build .
+#+end_src
 
 * Usage
 
 #+begin_src text
-Usage: Base64 [OPTIONS]
+  Usage: Base64 [OPTIONS]
 
-Options:
-  --help            Print this help message
-  --input, -i VAL   input file (default is STDIN)
-  --decode, -d      decode, instead of encoding
+  Options:
+    --help            Print this help message
+    --input, -i VAL   input file (default is STDIN)
+    --decode, -d      decode, instead of encoding
+    --wrap, -w VAL    insert newline after VAL chars
 #+end_src
