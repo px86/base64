@@ -63,7 +63,7 @@ public:
     Base64Encoder() = default;
     explicit Base64Encoder(std::string alphabet)
         : Base64(std::move(alphabet)) {};
-    [[nodiscard]] auto encode() -> std::string;
+    [[nodiscard]] auto encode(size_t wrap_after = 0UL) -> std::string;
 };
 
 class Base64Decoder : public Base64 {
@@ -75,7 +75,7 @@ public:
 };
 
 auto read_entire_file(const char* filepath) -> std::optional<std::vector<uint8_t>>;
-auto encode_file(const char* filepath) -> std::optional<std::string>;
+auto encode_file(const char* filepath, size_t wrap_after = 0UL) -> std::optional<std::string>;
 auto decode_file(const char* filepath) -> std::optional<std::vector<uint8_t>>;
 
 } // namespace pr

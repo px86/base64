@@ -12,6 +12,7 @@ auto main(int argc, char** argv) -> int
     // TODO: add support for output to a file
     // const char* output_filepath = nullptr;
     bool decode = false;
+    int wrap = 0;
 
     auto argparser = pr::ArgParser("Base64");
 
@@ -19,7 +20,10 @@ auto main(int argc, char** argv) -> int
     // TODO
     // argparser.add_option(output_filepath, "output file (defaults to stdout)", "output", 'o');
     argparser.add_option(decode, "decode, instead of encoding", "decode", 'd');
+    argparser.add_option(wrap, "insert newline after VAL chars", "wrap", 'w');
     argparser.parse(argc, argv);
+
+    size_t wrap_after = wrap > 0 ? (size_t)wrap : 0UL;
 
     // decode data from file
     if (decode && input_filepath != nullptr) {
@@ -39,7 +43,7 @@ auto main(int argc, char** argv) -> int
 
     // encode data from file
     if (!decode && input_filepath != nullptr) {
-        auto optional_val = pr::encode_file(input_filepath);
+        auto optional_val = pr::encode_file(input_filepath, wrap_after);
         if (!optional_val.has_value()) {
             std::cerr << "Error: Some error occured while reading/encoding the file '" << input_filepath << "'\n";
             return EXIT_FAILURE;
@@ -82,7 +86,7 @@ auto main(int argc, char** argv) -> int
     // encode from stdin
     auto encoder = pr::Base64Encoder {};
     encoder.feed_data(std::move(buff));
-    auto val = encoder.encode();
+    auto val = encoder.encode(wrap_after);
     std::cout << val << std::endl;
 
     return EXIT_SUCCESS;
